@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.js"></script>
+    <script type="text/javascript">$(document).ready(function () {
+            $('#btn').click(function () {
+                $("#tabledata tbody").empty();
+                var pageNo = 1; 
+                var noOfRecords = 10; 
+                var userID = $("#userid").val();
+
+                if (($("#page_num").val() != null || $("#page_num").val() != 'undefined') && ($("#page_num").val().length > 0)) {
+                    pageNo = $("#page_num").val();
+                }
+
+                if (($("#size").val() != null && $("#size").val() != 'undefined') && ($("#size").val().length > 0)) {
+                    noOfRecords = $("#size").val();
+                }
+
+                $.ajax({
+                    type: "GET",
+                    url: "https://localhost:5001/user/" + userID + "?pagenum=" + pageNo + "&size=" + noOfRecords,
+                    statusCode: {
+                        404: function () {
+                            alert("page not found");
+                        }
+                    },
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        $("#tabledata").show();
+                           console.log(data.data);
+                            $("#DIV").html('');
+                            let count = 1;
+                        $.each(data.data, function (j, arr) {
+                            var rows = "<tr>" +
+                                "<td>" + count++ + "</td>" +
+                                "<td><a href=" + arr.html_url + " target=_blank>" + arr.full_name + "</td></a>" +
+                                "<td>" + arr.pullRequestNum + "</td>" +                        
+                                "</tr>";
+                            $('#tabledata tbody').append(rows);
+                        });
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        if (xhr.status == 404) {
+                            alert("Page Not Found");
+                        }
+                    }
+                });
+            });
+});
+    </script>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div class="panel panel-primary">
+            <div class="panel-heading" style="font:bold 40px arial" />
+            PRHawkService
+        </div>
+        <br />
+        <br />
+        <div class="panel-body">
+            <input type="text" id="userid" name="user_id" placeholder="github user id" required/>
+            <input type="number" id="page_num" name="page_num" placeholder="page number" />
+            <input type="number" id="size" name="size" placeholder="number of records" /><br /><br />
+            <input id="btn" type="button" value="Click To Get Public Repositories Info" />
+            <br />
+            <br />
+            <table border="1" id="tabledata" style="display:none">
+                <thead>
+                    <tr>
+                        <th>Sr. No.</th>
+                        <th>Repository Name</th>
+                        <th>Number of Open Pull Requests</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </form>
+</body>
+</html>
